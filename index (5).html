@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Senior BA - SQL exercise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Montserrat', -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #f4f4f2; color: #1a1a1a; }
+  header { background: #ff0032; color: #fff; padding: 30px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  header h1 { margin: 0; font-size: 26px; font-weight: 700; }
+  header p { margin: 4px 0 0; font-size: 13px; color: #ffe3e0; }
+  .layout { display: flex; gap: 16px; padding: 16px; align-items: flex-start; }
+  .sidebar { width: 280px; flex-shrink: 0; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; }
+  .sidebar h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #666; margin: 0 0 10px; }
+  .sidebar .refresh-btn { width: 100%; margin-top: 10px; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 7px 10px; font-size: 12px; cursor: pointer; color: #444; }
+  .sidebar .refresh-btn:hover { background: #f4f4f2; }
+  .table-block { margin-bottom: 16px; }
+  .table-block .tname { font-weight: 600; font-size: 13px; margin-bottom: 4px; font-family: monospace; color: #cc0028; }
+  .table-block .trow-count { font-size: 11px; color: #888; margin-bottom: 6px; }
+  .col-list { font-size: 12px; font-family: monospace; line-height: 1.6; color: #333; max-height: 260px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 6px; }
+  .col-list span.type { color: #999; }
+  .main { flex: 1; min-width: 0; }
+  .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+  .question-block { margin-bottom: 20px; }
+  .qlabel { font-size: 13px; font-weight: 600; color: #cc0028; margin: 0 0 4px; }
+  .qtext { font-size: 13px; color: #444; margin: 0 0 8px; line-height: 1.5; }
+  textarea { width: 100%; min-height: 130px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; }
+  .controls { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  button.run { background: #ff0032; color: #fff; border: none; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  button.run:hover { background: #cc0028; }
+  button.run:disabled { background: #ccc; cursor: not-allowed; }
+  .status { font-size: 12px; color: #666; margin-top: 6px; min-height: 16px; }
+  .status.error { color: #cc0028; font-weight: 600; }
+  .results-wrap { overflow: auto; max-height: 480px; border: 1px solid #eee; border-radius: 6px; }
+  table.results { border-collapse: collapse; width: 100%; font-size: 12px; }
+  table.results th, table.results td { border-bottom: 1px solid #eee; padding: 6px 10px; text-align: left; white-space: nowrap; }
+  table.results th { background: #faf7f6; position: sticky; top: 0; font-family: monospace; color: #444; }
+  table.results tr:nth-child(even) { background: #fcfcfb; }
+  footer { text-align: center; font-size: 11px; color: #999; padding: 20px; }
+  footer a { color: #cc0028; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Senior BA SQL Exercise</h1>
+    <p>Data loads live from Google Sheets on each page load</p>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <h2>Tables</h2>
+    <div id="schema"><p style="font-size:12px;color:#888;">Loading from Google Sheets...</p></div>
+    <button class="refresh-btn" id="refresh-btn">&#8635; Refresh from Google Sheets</button>
+  </div>
+
+  <div class="main">
+    <div class="card" id="questions-card">
+      <h2 class="section-title">Exercise questions</h2>
+      <div class="question-block">
+        <p class="qlabel">Question 1</p>
+        <p class="qtext">Which 10 categories (<code>sku_category</code>) had the worst average forecast accuracy at 6 days out from delivery (<code>leadtime_to_delivery_date</code>)?</p>
+      </div>
+      <div class="question-block" style="margin-bottom:0;">
+        <p class="qlabel">Question 2</p>
+        <p class="qtext">Calculate a 3-week rolling average APE per delivery batch, and flag any week where the actual APE spiked more than 50% above its own rolling average.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <textarea id="sql-input" spellcheck="false">SELECT * FROM ingredient_actuals LIMIT 20;</textarea>
+      <div class="controls">
+        <button class="run" id="run-btn" disabled>Run query</button>
+        <span style="font-size:12px;color:#888;">or press Cmd/Ctrl + Enter</span>
+      </div>
+      <div class="status" id="status">Loading data from Google Sheets...</div>
+    </div>
+
+    <div class="card">
+      <div class="results-wrap" id="results-wrap">
+        <p style="font-size:13px;color:#888;margin:0;">Results will appear here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Data source: <a href="https://docs.google.com/spreadsheets/d/1bcPGhOHHrW3By35u8OmPeBy8fLt0rd1yZN9VrAKL2jM/edit" target="_blank">Google Sheet</a> (live) - for interview use only.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/sql-wasm.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+const SHEET_ID = '1bcPGhOHHrW3By35u8OmPeBy8fLt0rd1yZN9VrAKL2jM';
+const TABLES = [
+  { name: 'ingredient_actuals',   gid: '0' },
+  { name: 'ingredient_forecasts', gid: '989086102' }
+];
+
+function csvUrl(gid) {
+  return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + gid;
+}
+
+const statusEl = document.getElementById('status');
+const resultsWrap = document.getElementById('results-wrap');
+const sqlInput = document.getElementById('sql-input');
+const runBtn = document.getElementById('run-btn');
+const refreshBtn = document.getElementById('refresh-btn');
+
+let db;
+let tableSpecs = {};
+
+function inferType(values) {
+  let sawFloat = false;
+  for (const v of values) {
+    if (v === null || v === undefined || v === '') continue;
+    if (typeof v === 'number') { if (!Number.isInteger(v)) sawFloat = true; }
+    else return 'TEXT';
+  }
+  return sawFloat ? 'REAL' : 'INTEGER';
+}
+
+async function fetchTable(table) {
+  const res = await fetch(csvUrl(table.gid), { cache: 'no-store' });
+  if (!res.ok) throw new Error('Could not load "' + table.name + '" (HTTP ' + res.status + '). Check the sheet is shared as "Anyone with the link".');
+  const csvText = await res.text();
+  const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
+  const columns = parsed.meta.fields;
+  const rows = parsed.data.map(r => columns.map(c => (r[c] === '' || r[c] === undefined) ? null : r[c]));
+  const types = columns.map((c, i) => inferType(rows.map(r => r[i])));
+  return { columns, types, rows };
+}
+
+function renderSchema() {
+  const container = document.getElementById('schema');
+  let html = '';
+  Object.keys(tableSpecs).forEach(function(name) {
+    const spec = tableSpecs[name];
+    html += '<div class="table-block"><div class="tname">' + name + '</div>';
+    html += '<div class="trow-count">' + spec.rows.length + ' rows</div>';
+    html += '<div class="col-list">';
+    spec.columns.forEach(function(c, i) {
+      html += c + ' <span class="type">' + spec.types[i] + '</span><br>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function escapeHtml(v) {
+  if (v === null || v === undefined) return '<span style="color:#bbb;">null</span>';
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderResults(result) {
+  if (!result) {
+    resultsWrap.innerHTML = '<p style="font-size:13px;color:#888;margin:0;">Query ran, no rows returned.</p>';
+    return;
+  }
+  const cap = 1000;
+  const rows = result.values.slice(0, cap);
+  let html = '<table class="results"><thead><tr><th>#</th>';
+  result.columns.forEach(function(c) { html += '<th>' + escapeHtml(c) + '</th>'; });
+  html += '</tr></thead><tbody>';
+  rows.forEach(function(r, i) {
+    html += '<tr><td style="color:#999;">' + (i + 1) + '</td>' + r.map(escapeHtml).map(function(v){ return '<td>' + v + '</td>'; }).join('') + '</tr>';
+  });
+  html += '</tbody></table>';
+  if (result.values.length > cap) {
+    html += '<p style="font-size:12px;color:#888;padding:8px;">Showing first ' + cap + ' of ' + result.values.length + ' rows.</p>';
+  }
+  resultsWrap.innerHTML = html;
+}
+
+function runQuery() {
+  if (!db) {
+    statusEl.textContent = 'Data is still loading - try again in a second.';
+    statusEl.className = 'status error';
+    return;
+  }
+  const sql = sqlInput.value.trim();
+  if (!sql) {
+    statusEl.textContent = 'Enter a query first.';
+    statusEl.className = 'status error';
+    return;
+  }
+  try {
+    const t0 = performance.now();
+    const results = db.exec(sql);
+    const t1 = performance.now();
+    if (results.length === 0) {
+      renderResults(null);
+      statusEl.textContent = 'Query ran in ' + Math.round(t1 - t0) + 'ms - no result set.';
+      statusEl.className = 'status';
+    } else {
+      const last = results[results.length - 1];
+      renderResults(last);
+      statusEl.textContent = last.values.length + ' rows in ' + Math.round(t1 - t0) + 'ms.';
+      statusEl.className = 'status';
+    }
+  } catch (err) {
+    statusEl.textContent = err.message;
+    statusEl.className = 'status error';
+  }
+}
+
+async function loadAll() {
+  runBtn.disabled = true;
+  refreshBtn.disabled = true;
+  statusEl.textContent = 'Fetching latest data from Google Sheets...';
+  statusEl.className = 'status';
+  document.getElementById('schema').innerHTML = '<p style="font-size:12px;color:#888;">Loading from Google Sheets...</p>';
+
+  try {
+    const SQL = await initSqlJs({ locateFile: file => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/' + file });
+    const newDb = new SQL.Database();
+    const newSpecs = {};
+
+    for (const table of TABLES) {
+      const spec = await fetchTable(table);
+      newSpecs[table.name] = spec;
+      const colDefs = spec.columns.map((c, i) => '"' + c + '" ' + spec.types[i]).join(', ');
+      newDb.run('CREATE TABLE "' + table.name + '" (' + colDefs + ');');
+      const placeholders = spec.columns.map(() => '?').join(',');
+      newDb.run('BEGIN TRANSACTION;');
+      const stmt = newDb.prepare('INSERT INTO "' + table.name + '" VALUES (' + placeholders + ')');
+      spec.rows.forEach(r => stmt.run(r));
+      stmt.free();
+      newDb.run('COMMIT;');
+    }
+
+    db = newDb;
+    tableSpecs = newSpecs;
+    renderSchema();
+    statusEl.textContent = 'Data loaded from Google Sheets.';
+    statusEl.className = 'status';
+    runBtn.disabled = false;
+  } catch (err) {
+    statusEl.textContent = 'Failed to load data: ' + err.message;
+    statusEl.className = 'status error';
+    document.getElementById('schema').innerHTML = '<p style="font-size:12px;color:#cc0028;">Could not load tables. Make sure the Google Sheet is shared as "Anyone with the link - Viewer".</p>';
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+runBtn.addEventListener('click', runQuery);
+refreshBtn.addEventListener('click', loadAll);
+sqlInput.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runQuery(); }
+});
+
+loadAll();
+</script>
+</body>
+</html>
