@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Senior BA - SQL Exercise</title>
+<title>Senior BA - SQL exercise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -130,8 +130,27 @@ async function fetchTable(table) {
   if (!res.ok) throw new Error('Could not load "' + table.name + '" (HTTP ' + res.status + '). Check the sheet is shared as "Anyone with the link".');
   const csvText = await res.text();
   const parsed = Papa.parse(csvText, { header: true, dynamicTyping: true, skipEmptyLines: true });
-  const columns = parsed.meta.fields;
-  const rows = parsed.data.map(r => columns.map(c => (r[c] === '' || r[c] === undefined) ? null : r[c]));
+  const rawFields = parsed.meta.fields;
+
+  // Keep only columns with a real (non-blank) header, and de-duplicate repeated names.
+  const seen = {};
+  const keepIndexes = [];
+  const columns = [];
+  rawFields.forEach((f, i) => {
+    const name = (f || '').trim();
+    if (!name) return; // drop blank/trailing columns from the sheet
+    let finalName = name;
+    if (seen[name] !== undefined) {
+      seen[name] += 1;
+      finalName = name + '_' + seen[name];
+    } else {
+      seen[name] = 0;
+    }
+    keepIndexes.push(f); // original field key used to read from parsed rows
+    columns.push(finalName);
+  });
+
+  const rows = parsed.data.map(r => keepIndexes.map(f => (r[f] === '' || r[f] === undefined) ? null : r[f]));
   const types = columns.map((c, i) => inferType(rows.map(r => r[i])));
   return { columns, types, rows };
 }
