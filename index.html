@@ -50,7 +50,6 @@
 <header>
   <div>
     <h1>Senior BA SQL Exercise</h1>
-    <p>Data loads live from Google Sheets on each page load</p>
   </div>
 </header>
 
@@ -66,11 +65,11 @@
       <h2 class="section-title">Exercise questions</h2>
       <div class="question-block">
         <p class="qlabel">Question 1</p>
-        <p class="qtext">Which 10 categories (<code>sku_category</code>) had the worst average forecast accuracy at 6 days out from delivery (<code>leadtime_to_delivery_date</code>)?</p>
+        <p class="qtext">Which 10 categories (<code>sku_category</code>) had the worst average forecast accuracy at 6 days out from delivery (<code>leadtime_to_delivery_date</code>).State how you handle records where actual volume is zero.?</p>
       </div>
       <div class="question-block" style="margin-bottom:0;">
         <p class="qlabel">Question 2</p>
-        <p class="qtext">Calculate a 3-week rolling average APE per delivery batch, and flag any week where the actual APE spiked more than 50% above its own rolling average.</p>
+        <p class="qtext">Using the same six-day-ahead forecast, calculate the 3-week rolling average APE per delivery batch, and flag any week where the APE spiked more than 50% above its own rolling average.</p>
       </div>
     </div>
 
@@ -91,7 +90,7 @@
   </div>
 </div>
 
-<footer>Data source: <a href="https://docs.google.com/spreadsheets/d/1bcPGhOHHrW3By35u8OmPeBy8fLt0rd1yZN9VrAKL2jM/edit" target="_blank" rel="noopener noreferrer">Google Sheet</a> (live) - for interview use only.</footer>
+<footer>Data source: for interview use only.</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/sql-wasm.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
