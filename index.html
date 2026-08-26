@@ -59,7 +59,7 @@
 <div class="layout">
   <div class="sidebar">
     <h2>Tables</h2>
-    <div id="schema"><p style="font-size:12px;color:#888;">Loading from Google Sheets...</p></div>
+    <div id="schema"><p style="font-size:12px;color:#888;">Loading ...</p></div>
     <button class="refresh-btn" id="refresh-btn">&#8635; Refresh Data Source</button>
   </div>
 
@@ -82,7 +82,7 @@
         <button class="run" id="run-btn" disabled>Run query</button>
         <span style="font-size:12px;color:#888;">or press Cmd/Ctrl + Enter</span>
       </div>
-      <div class="status" id="status">Loading data from Google Sheets...</div>
+      <div class="status" id="status">Loading data ...</div>
     </div>
 
     <div class="card">
@@ -278,7 +278,7 @@ function runQuery() {
 async function loadAll() {
   runBtn.disabled = true;
   refreshBtn.disabled = true;
-  statusEl.textContent = 'Fetching latest data from Google Sheets...';
+  statusEl.textContent = 'Fetching latest data...';
   statusEl.className = 'status';
   document.getElementById('schema').innerHTML = '<p style="font-size:12px;color:#888;">Loading from Google Sheets...</p>';
 
