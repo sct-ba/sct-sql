@@ -30,7 +30,7 @@
   .question-block { margin-bottom: 20px; }
   .qlabel { font-size: 13px; font-weight: 600; color: #cc0028; margin: 0 0 4px; }
   .qtext { font-size: 13px; color: #444; margin: 0 0 8px; line-height: 1.5; }
-  textarea { width: 100%; min-height: 130px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; }
+  textarea { width: 100%; min-height: 280px; font-family: "SF Mono", Consolas, monospace; font-size: 13px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; }
   .controls { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
   button.run { background: #ff0032; color: #fff; border: none; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
   button.run:hover { background: #cc0028; }
@@ -67,6 +67,7 @@
     <div class="card" id="questions-card">
       <h2 class="section-title">Exercise question</h2>
       <div class="question-block">
+        <p class="qlabel">Question</p>
         <p class="qtext">Which 10 categories (<code>sku_category</code>) had the worst average forecast accuracy at 6 days out from delivery (<code>leadtime_to_delivery_date</code>)? State how you handle records where actual volume is zero.</p>
     </div>
 
@@ -83,11 +84,10 @@
       <div class="results-wrap" id="results-wrap">
         <p style="font-size:13px;color:#888;margin:0;">Results will appear here.</p>
       </div>
+      <p style="font-size:11px;color:#999;text-align:center;margin:10px 0 0;">Data source: for interview use only.</p>
     </div>
   </div>
 </div>
-
-<footer>Data source: for interview use only.</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.14.2/sql-wasm.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
